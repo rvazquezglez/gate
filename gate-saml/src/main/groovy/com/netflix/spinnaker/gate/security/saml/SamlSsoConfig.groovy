@@ -95,6 +95,7 @@ class SamlSsoConfig extends WebSecurityConfigurerAdapter {
     boolean forceLowercaseRoles = true
     UserAttributeMapping userAttributeMapping = new UserAttributeMapping()
     long maxAuthenticationAge = 7200
+    int responseSkew = 60
 
     String signatureDigest = "SHA1" // SHA1 is the default registered in DefaultSecurityConfigurationBootstrap.populateSignatureParams
 
@@ -202,6 +203,7 @@ class SamlSsoConfig extends WebSecurityConfigurerAdapter {
   public WebSSOProfileConsumerImpl getWebSSOProfileConsumerImpl() {
     WebSSOProfileConsumerImpl profileConsumer = new WebSSOProfileConsumerImpl();
     profileConsumer.setMaxAuthenticationAge(samlSecurityConfigProperties.maxAuthenticationAge);
+    profileConsumer.setResponseSkew(samlSecurityConfigProperties.responseSkew);
     return profileConsumer;
   }
 
