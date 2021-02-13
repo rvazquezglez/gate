@@ -10,6 +10,10 @@ allprojects {
 
   group = "com.netflix.spinnaker.gate"
 
+  repositories {
+    mavenLocal()
+  }
+
   if ([korkVersion, fiatVersion].find { it.endsWith('-SNAPSHOT') }) {
     repositories {
       mavenLocal()
@@ -49,6 +53,12 @@ allprojects {
     configurations.all {
       exclude group: 'javax.servlet', module: 'servlet-api'
       exclude group: 'javax.servlet', module: 'javax.servlet-api'
+
+      resolutionStrategy{
+        eachDependency {
+          if (it.requested.group == 'com.netflix.spinnaker.kork') it.useVersion 'unspecified'
+        }
+      }
     }
   }
 
