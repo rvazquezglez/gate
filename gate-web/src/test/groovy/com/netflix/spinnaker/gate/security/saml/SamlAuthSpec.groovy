@@ -113,7 +113,9 @@ class SamlAuthSpec extends Specification {
     @ConfigurationProperties("saml")
     SamlSsoConfig.SAMLSecurityConfigProperties samlConfigProps() {
       new SamlSsoConfig.SAMLSecurityConfigProperties().tap {
-        metadataUrl = "file://${Paths.get("").toAbsolutePath()}/src/test/resources/saml/metadata.xml"
+//        metadataUrl = "file://${Paths.get("").toAbsolutePath()}/src/test/resources/saml/metadata.xml"
+        // TODO: how to use metadata from file as before?
+        metadataUrl ="https://armory.okta.com/app/exk9vcgwekOMTCEl22p7/sso/saml/metadata"
         keyStore = "file://${Paths.get("").toAbsolutePath()}/src/test/resources/saml/test-keystore.jks"
         keyStorePassword = 'keypassword'
         keyStoreAliasName = 'saml'
@@ -122,7 +124,6 @@ class SamlAuthSpec extends Specification {
         redirectBasePath = '/'
         redirectProtocol = 'http'
         maxAuthenticationAge = Integer.MAX_VALUE
-        responseSkew = Integer.MAX_VALUE
       }
     }
   }

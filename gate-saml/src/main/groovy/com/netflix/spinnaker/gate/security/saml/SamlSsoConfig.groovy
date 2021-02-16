@@ -41,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
@@ -55,14 +54,8 @@ import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken
-import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations
-import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding
+import org.springframework.security.saml2.provider.service.registration.*
 import org.springframework.session.web.http.DefaultCookieSerializer
 import org.springframework.stereotype.Component
 
@@ -124,6 +117,7 @@ class SamlSsoConfig extends WebSecurityConfigurerAdapter {
         if (!keyStore.startsWith("file:")) {
           keyStore = "file:" + keyStore
         }
+
         new File(new URI(keyStore)).withInputStream { is ->
           def keystore = KeyStore.getInstance(KeyStore.getDefaultType())
 
@@ -256,15 +250,12 @@ class SamlSsoConfig extends WebSecurityConfigurerAdapter {
 
   RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
     RelyingPartyRegistration relyingPartyRegistration =
-      RelyingPartyRegistrations.fromMetadataLocation(
-        "https://armory.okta.com/app/exk7dma3uxKN4j4KW2p7/sso/saml/metadata")
-        .assertingPartyDetails({ party -> party.wantAuthnRequestsSigned(false) })
-      /* // Where to get party details? metadata.xml?
-      .assertingPartyDetails(party -> party
-                                     .singleSignOnServiceLocation("https://armory.okta.com/app/armory_zachsmithspinnaker_1/exk7dma3uxKN4j4KW2p7/sso/saml"))
-                                     */
-        .assertionConsumerServiceLocation("{baseUrl}/saml/SSO")
-        .assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+      RelyingPartyRegistrations
+        .fromMetadataLocation(samlSecurityConfigProperties.metadataUrl)
+        .registrationId("asdfasdf")
+//        .assertingPartyDetails({ party -> party.wantAuthnRequestsSigned(false) })
+//        .assertionConsumerServiceLocation("{baseUrl}/saml/SSO")
+        .assertionConsumerServiceBinding(Saml2MessageBinding.POST)
         .build()
     return new InMemoryRelyingPartyRegistrationRepository(relyingPartyRegistration);
   }
@@ -362,6 +353,7 @@ class SamlSsoConfig extends WebSecurityConfigurerAdapter {
 
     String rsaSignatureMethod
     String digestMethod
+
     SignatureAlgorithms(String rsaSignatureMethod, String digestMethod) {
       this.rsaSignatureMethod = rsaSignatureMethod
       this.digestMethod = digestMethod
